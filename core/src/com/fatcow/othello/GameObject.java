@@ -5,26 +5,26 @@ import com.badlogic.gdx.utils.Array;
 import com.fatcow.othello.Components.Component;
 import com.fatcow.othello.Components.GraphicsComponent;
 import com.fatcow.othello.Components.InputComponent;
-import com.fatcow.othello.Components.OraculComponent;
+import com.fatcow.othello.Components.OracleComponent;
 
 public class GameObject {
 
-    protected OraculComponent oraculComponent;
+    protected OracleComponent oracleComponent;
     protected GraphicsComponent graphicsComponent;
     protected InputComponent inputComponent;
 
     protected Array<Component> components;
 
-    public GameObject(OraculComponent oraculComponent,
+    public GameObject(OracleComponent oracleComponent,
                       GraphicsComponent graphicsComponent,
                       InputComponent inputComponent) {
         components = new Array<Component>();
         this.inputComponent = inputComponent;
-        this.oraculComponent = oraculComponent;
+        this.oracleComponent = oracleComponent;
         this.graphicsComponent = graphicsComponent;
 
-        if (oraculComponent != null) {
-            components.add(oraculComponent);
+        if (oracleComponent != null) {
+            components.add(oracleComponent);
         }
         if (graphicsComponent != null) {
             components.add(graphicsComponent);
@@ -47,7 +47,7 @@ public class GameObject {
             builder.append(Component.MESSAGE_TOKEN);
             builder.append(string);
         }
-        oraculComponent.receiveMessage(builder.toString());
+        oracleComponent.receiveMessage(builder.toString());
         graphicsComponent.receiveMessage(builder.toString());
         inputComponent.receiveMessage(builder.toString());
 //        for(Component component: components) {
@@ -55,8 +55,8 @@ public class GameObject {
 //        }
     }
 
-    public OraculComponent getOraculComponent() {
-        return oraculComponent;
+    public OracleComponent getOracleComponent() {
+        return oracleComponent;
     }
 
     public GraphicsComponent getGraphicsComponent() {

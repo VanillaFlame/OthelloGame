@@ -1,7 +1,6 @@
 package com.fatcow.othello;
 
 import com.badlogic.gdx.Gdx;
-import com.fatcow.othello.Components.OraculComponent;
 
 public final class GameConfig {
     public static final float WORLD_WIDTH = Gdx.graphics.getWidth();

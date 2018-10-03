@@ -1,19 +1,18 @@
 package com.fatcow.othello;
 
-import com.fatcow.othello.Components.Component;
 import com.fatcow.othello.Components.GraphicsComponent;
 import com.fatcow.othello.Components.InputComponent;
-import com.fatcow.othello.Components.OraculComponent;
+import com.fatcow.othello.Components.OracleComponent;
 
 public class GameBoard extends GameObject {
 
-    public GameBoard(OraculComponent oraculComponent,
+    public GameBoard(OracleComponent oracleComponent,
                      GraphicsComponent graphicsComponent,
                      InputComponent inputComponent) {
-        super(oraculComponent, graphicsComponent, inputComponent);
+        super(oracleComponent, graphicsComponent, inputComponent);
         inputComponent.setGameObject(this);
-        oraculComponent.setGameObject(this);
-        oraculComponent.forceSendPredictedMessage();
-        oraculComponent.forceSendPossibleTurnsMessage();
+        oracleComponent.setGameObject(this);
+        oracleComponent.forceSendPredictedMessage();
+        oracleComponent.forceSendPossibleTurnsMessage();
     }
 }

@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fatcow.othello.Components.GraphicsComponent;
 import com.fatcow.othello.Components.InputComponent;
-import com.fatcow.othello.Components.OraculComponent;
+import com.fatcow.othello.Components.OracleComponent;
 public class MainGameScreen extends ScreenAdapter {
 
     private OthelloGame game;
@@ -38,7 +38,7 @@ public class MainGameScreen extends ScreenAdapter {
         };
         Board startBoard = new Board(startPosition);
         gameBoard = new GameBoard(
-                new OraculComponent(startBoard),
+                new OracleComponent(startBoard),
                 new GraphicsComponent(),
                 new InputComponent());
         gameBoard.getInputComponent().setGameObject(gameBoard);

@@ -6,7 +6,7 @@ import com.fatcow.othello.*;
 
 import java.util.HashSet;
 
-public class OraculComponent implements Component {
+public class OracleComponent implements Component {
 
     private Board currentBoard;
     private Turn lastPlayerTurn = new Turn(-1, -1, GameConfig.PLAYER_DISK_TYPE);
@@ -14,7 +14,7 @@ public class OraculComponent implements Component {
     protected Json json = new Json();
     protected GameObject gameObject;
 
-    public OraculComponent(Board startBoard) {
+    public OracleComponent(Board startBoard) {
         currentBoard = startBoard;
         possibleTurns = getPossibleTurns(GameConfig.PLAYER_DISK_TYPE);
         System.out.println("Possible player turns: " + possibleTurns);

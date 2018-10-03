@@ -1,7 +1,5 @@
 package com.fatcow.othello;
 
-import com.fatcow.othello.Components.OraculComponent;
-
 public class Turn {
 
     private int x, y;
