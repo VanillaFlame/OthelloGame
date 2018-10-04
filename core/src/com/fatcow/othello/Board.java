@@ -1,6 +1,9 @@
 package com.fatcow.othello;
 
+import com.badlogic.gdx.math.Vector2;
+
 import java.util.Arrays;
+import java.util.List;
 
 public class Board {
 
@@ -10,6 +13,13 @@ public class Board {
     public Board(DiskType[][] startPosition) {
         this.data = startPosition;
         prevState = null;
+    }
+
+    public Board(Board prevState, Turn turn, List<Vector2> toReverse) {
+        this(prevState, turn);
+        for (Vector2 reverse: toReverse) {
+            data[(int)reverse.x][(int)reverse.y] = turn.getDiskType();
+        }
     }
 
     public Board(Board prevState, Turn turn) {

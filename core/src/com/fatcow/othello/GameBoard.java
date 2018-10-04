@@ -12,7 +12,7 @@ public class GameBoard extends GameObject {
         super(oracleComponent, graphicsComponent, inputComponent);
         inputComponent.setGameObject(this);
         oracleComponent.setGameObject(this);
-        oracleComponent.forceSendPredictedMessage();
+        oracleComponent.forceSendDataChangedMessage();
         oracleComponent.forceSendPossibleTurnsMessage();
     }
 }

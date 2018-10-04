@@ -5,12 +5,14 @@ import com.badlogic.gdx.utils.Json;
 import com.fatcow.othello.*;
 
 import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.LinkedList;
 
 public class OracleComponent implements Component {
 
     private Board currentBoard;
     private Turn lastPlayerTurn = new Turn(-1, -1, GameConfig.PLAYER_DISK_TYPE);
-    private HashSet<Vector2> possibleTurns;
+    private Hashtable<Vector2, LinkedList<Vector2>> possibleTurns;
     protected Json json = new Json();
     protected GameObject gameObject;
 
@@ -24,7 +26,7 @@ public class OracleComponent implements Component {
         this.gameObject = gameObject;
     }
 
-    public HashSet<Vector2> getPossibleTurns() {
+    public Hashtable<Vector2, LinkedList<Vector2>> getPossibleTurns() {
         return possibleTurns;
     }
 
@@ -34,22 +36,22 @@ public class OracleComponent implements Component {
         }
     }
 
-    public void forceSendPredictedMessage() {
+    public void forceSendDataChangedMessage() {
         if (gameObject != null) {
-            gameObject.sendMessage(Message.TURN_PREDICTED, json.toJson(currentBoard.getData(), DiskType[][].class));
+            gameObject.sendMessage(Message.BOARD_DATA_CHANGED, json.toJson(currentBoard.getData(), DiskType[][].class));
         }
     }
 
-    private HashSet<Vector2> getPossibleTurns(DiskType diskType) {
-        HashSet<Vector2> possibleTurns = new HashSet<Vector2>();
+    private Hashtable<Vector2, LinkedList<Vector2>> getPossibleTurns(DiskType diskType) {
+        Hashtable<Vector2, LinkedList<Vector2>> possibleTurns = new Hashtable<Vector2, LinkedList<Vector2>>();
         DiskType[][] data = currentBoard.getData();
         for (int i = 0; i < data.length; ++i) {
             for (int j = 0; j < data.length; ++j) {
                 if (data[i][j] == diskType) {
-                    possibleTurns.addAll(BoardUtils.getPossibleRowTurns(currentBoard, diskType, i, j));
-                    possibleTurns.addAll(BoardUtils.getPossibleColumnTurns(currentBoard, diskType, i, j));
-                    possibleTurns.addAll(BoardUtils.getPossibleDiagTurns(currentBoard, diskType, i, j));
-                    possibleTurns.addAll(BoardUtils.getPossibleAntidiagTurns(currentBoard, diskType, i, j));
+                    possibleTurns.putAll(BoardUtils.getPossibleRowTurns(currentBoard, diskType, i, j));
+                    possibleTurns.putAll(BoardUtils.getPossibleColumnTurns(currentBoard, diskType, i, j));
+                    possibleTurns.putAll(BoardUtils.getPossibleDiagTurns(currentBoard, diskType, i, j));
+                    possibleTurns.putAll(BoardUtils.getPossibleAntidiagTurns(currentBoard, diskType, i, j));
                 }
             }
         }
@@ -67,10 +69,12 @@ public class OracleComponent implements Component {
         if (string.length == 2) {
             if (string[0].equalsIgnoreCase(Message.PLAYER_INPUT.toString())) {
                 lastPlayerTurn = json.fromJson(Turn.class, string[1]);
-                currentBoard = new Board(currentBoard, lastPlayerTurn);
+                currentBoard = new Board(currentBoard, lastPlayerTurn, possibleTurns.get(
+                        new Vector2(lastPlayerTurn.getX(), lastPlayerTurn.getY())));
                 possibleTurns = getPossibleTurns(GameConfig.PLAYER_DISK_TYPE);
                 System.out.println("Possible player turns: " + possibleTurns);
                 forceSendPossibleTurnsMessage();
+                forceSendDataChangedMessage();
             }
         }
     }

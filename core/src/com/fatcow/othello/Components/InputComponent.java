@@ -6,12 +6,14 @@ import com.badlogic.gdx.utils.Json;
 import com.fatcow.othello.*;
 
 import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
 
 public class InputComponent implements Component, InputProcessor {
 
     private GameObject gameObject;
     private Json json = new Json();
-    private HashSet<Vector2> possibleTurns = new HashSet<Vector2>();
+    private Set<Vector2> possibleTurns = new HashSet<Vector2>();
 
     public InputComponent() {
     }
@@ -75,7 +77,21 @@ public class InputComponent implements Component, InputProcessor {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        return false;
+        screenX -= GraphicsComponent.LEFT_BORDER_WIDTH;
+        screenY -= GraphicsComponent.BOTTOM_BORDER_WIDTH;
+        int i = (int)(screenX / GraphicsComponent.BOARD_CELL_SIZE);
+        int j = (int)(screenY / GraphicsComponent.BOARD_CELL_SIZE);
+        i = Math.min(GameConfig.BOARD_SIZE - 1, i);
+        j = Math.min(GameConfig.BOARD_SIZE - 1, j);
+        Vector2 movedOn = new Vector2(i, j);
+        if (gameObject != null) {
+            if (possibleTurns.contains(movedOn)) {
+                gameObject.sendMessage(Message.DRAG_OVER_POSSIBLE_TURN_BEGIN, json.toJson(movedOn, Vector2.class));
+            } else {
+                gameObject.sendMessage(Message.DRAG_OVER_POSSIBLE_TURN_END);
+            }
+        }
+        return true;
     }
 
     @Override
@@ -88,7 +104,11 @@ public class InputComponent implements Component, InputProcessor {
         String[] string = message.split(MESSAGE_TOKEN);
         if (string.length == 2) {
             if (string[0].equalsIgnoreCase(Message.POSSIBLE_TURNS.toString())) {
-                possibleTurns = json.fromJson(HashSet.class, string[1]);
+                Set<String> strTurns = (json.fromJson(Hashtable.class, string[1])).keySet();
+                possibleTurns.clear();
+                for (String str: strTurns) {
+                    possibleTurns.add(BoardUtils.stringPosToVector(str));
+                }
             }
         }
     }
