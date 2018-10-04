@@ -5,26 +5,26 @@ import com.badlogic.gdx.utils.Array;
 import com.fatcow.othello.Components.Component;
 import com.fatcow.othello.Components.GraphicsComponent;
 import com.fatcow.othello.Components.InputComponent;
-import com.fatcow.othello.Components.OracleComponent;
+import com.fatcow.othello.Components.RepresentationComponent;
 
 public class GameObject {
 
-    protected OracleComponent oracleComponent;
+    protected RepresentationComponent representationComponent;
     protected GraphicsComponent graphicsComponent;
     protected InputComponent inputComponent;
 
     protected Array<Component> components;
 
-    public GameObject(OracleComponent oracleComponent,
+    public GameObject(RepresentationComponent representationComponent,
                       GraphicsComponent graphicsComponent,
                       InputComponent inputComponent) {
         components = new Array<Component>();
         this.inputComponent = inputComponent;
-        this.oracleComponent = oracleComponent;
+        this.representationComponent = representationComponent;
         this.graphicsComponent = graphicsComponent;
 
-        if (oracleComponent != null) {
-            components.add(oracleComponent);
+        if (representationComponent != null) {
+            components.add(representationComponent);
         }
         if (graphicsComponent != null) {
             components.add(graphicsComponent);
@@ -47,16 +47,16 @@ public class GameObject {
             builder.append(Component.MESSAGE_TOKEN);
             builder.append(string);
         }
-        oracleComponent.receiveMessage(builder.toString());
-        graphicsComponent.receiveMessage(builder.toString());
         inputComponent.receiveMessage(builder.toString());
+        graphicsComponent.receiveMessage(builder.toString());
+        representationComponent.receiveMessage(builder.toString());
 //        for(Component component: components) {
 //            component.receiveMessage(builder.toString());
 //        }
     }
 
-    public OracleComponent getOracleComponent() {
-        return oracleComponent;
+    public RepresentationComponent getRepresentationComponent() {
+        return representationComponent;
     }
 
     public GraphicsComponent getGraphicsComponent() {

@@ -14,6 +14,7 @@ public class InputComponent implements Component, InputProcessor {
     private GameObject gameObject;
     private Json json = new Json();
     private Set<Vector2> possibleTurns = new HashSet<Vector2>();
+    private boolean isPlayerTurn = true;
 
     public InputComponent() {
     }
@@ -48,21 +49,23 @@ public class InputComponent implements Component, InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        screenX -= GraphicsComponent.LEFT_BORDER_WIDTH;
-        screenY -= GraphicsComponent.BOTTOM_BORDER_WIDTH;
-        int i = (int)(screenX / GraphicsComponent.BOARD_CELL_SIZE);
-        int j = (int)(screenY / GraphicsComponent.BOARD_CELL_SIZE);
-        i = Math.min(GameConfig.BOARD_SIZE - 1, i);
-        j = Math.min(GameConfig.BOARD_SIZE - 1, j);
-        System.out.println("Player clicked at: " +
-                '(' + i + ", " + j + ')' );
-        if (gameObject != null && possibleTurns.contains(new Vector2(i, j))) {
-            Turn turn = new Turn(i, j, GameConfig.PLAYER_DISK_TYPE);
-            gameObject.sendMessage(Message.PLAYER_INPUT, json.toJson(turn, Turn.class));
-        } else {
-            System.out.println("This turn is unfair!");
+        if (isPlayerTurn) {
+            screenX -= GraphicsComponent.LEFT_BORDER_WIDTH;
+            screenY -= GraphicsComponent.BOTTOM_BORDER_WIDTH;
+            int i = (int) (screenX / GraphicsComponent.BOARD_CELL_SIZE);
+            int j = (int) (screenY / GraphicsComponent.BOARD_CELL_SIZE);
+            i = Math.min(GameConfig.BOARD_SIZE - 1, i);
+            j = Math.min(GameConfig.BOARD_SIZE - 1, j);
+            System.out.println("Player clicked at: " +
+                    '(' + i + ", " + j + ')');
+            if (gameObject != null && possibleTurns.contains(new Vector2(i, j))) {
+                Turn turn = new Turn(i, j, GameConfig.PLAYER_DISK_TYPE);
+                gameObject.sendMessage(Message.PLAYER_INPUT, json.toJson(turn, Turn.class));
+            } else {
+                System.out.println("This turn is unfair!");
+            }
         }
-        return true;
+        return isPlayerTurn;
     }
 
     @Override
@@ -102,7 +105,13 @@ public class InputComponent implements Component, InputProcessor {
     @Override
     public void receiveMessage(String message) {
         String[] string = message.split(MESSAGE_TOKEN);
-        if (string.length == 2) {
+        if (string.length == 1) {
+            if (string[0].equalsIgnoreCase(Message.COMPUTER_TURN.toString())) {
+                isPlayerTurn = false;
+            } else if (string[0].equalsIgnoreCase(Message.PLAYER_TURN.toString())) {
+                isPlayerTurn = true;
+            }
+        } else if (string.length == 2) {
             if (string[0].equalsIgnoreCase(Message.POSSIBLE_TURNS.toString())) {
                 Set<String> strTurns = (json.fromJson(Hashtable.class, string[1])).keySet();
                 possibleTurns.clear();

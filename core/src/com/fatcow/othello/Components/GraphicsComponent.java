@@ -79,23 +79,19 @@ public class GraphicsComponent implements Component {
             if (string[0].equalsIgnoreCase(Message.DRAG_OVER_POSSIBLE_TURN_END.toString())) {
                 mouseOnCell = new Vector2(-1 , -1);
             }
-        }
-        if (string.length == 2) {
+        } else if (string.length == 2) {
             if (string[0].equalsIgnoreCase(Message.PLAYER_INPUT.toString())) {
                 lastPlayerTurn = json.fromJson(Turn.class, string[1]);
                 currentBoardPositions[lastPlayerTurn.getX()][lastPlayerTurn.getY()] = lastPlayerTurn.getDiskType();
-            }
-            if (string[0].equalsIgnoreCase(Message.BOARD_DATA_CHANGED.toString())) {
+            } else if (string[0].equalsIgnoreCase(Message.BOARD_DATA_CHANGED.toString())) {
                 currentBoardPositions = json.fromJson(DiskType[][].class, string[1]);
-            }
-            if (string[0].equalsIgnoreCase(Message.POSSIBLE_TURNS.toString())) {
+            } else if (string[0].equalsIgnoreCase(Message.POSSIBLE_TURNS.toString())) {
                 Hashtable<String, LinkedList<Vector2>> strTurns = json.fromJson(Hashtable.class, string[1]);
                 possibleTurns.clear();
                 for (String key: strTurns.keySet()) {
                     possibleTurns.put(BoardUtils.stringPosToVector(key), strTurns.get(key));
                 }
-            }
-            if (string[0].equalsIgnoreCase(Message.DRAG_OVER_POSSIBLE_TURN_BEGIN.toString())) {
+            } else if (string[0].equalsIgnoreCase(Message.DRAG_OVER_POSSIBLE_TURN_BEGIN.toString())) {
                 mouseOnCell = json.fromJson(Vector2.class, string[1]);
             }
         }
