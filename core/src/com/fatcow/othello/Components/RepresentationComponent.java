@@ -18,8 +18,12 @@ public class RepresentationComponent implements Component {
 
     public RepresentationComponent(Board startBoard) {
         currentBoard = startBoard;
-        possibleTurns = getPossibleTurns(GameConfig.PLAYER_DISK_TYPE);
-        System.out.println("Possible player turns: " + possibleTurns);
+        if (GameConfig.PLAYER_DISK_TYPE == DiskType.BLACK) {
+            possibleTurns = getPossibleTurns(GameConfig.PLAYER_DISK_TYPE);
+            System.out.println("Possible player turns: " + possibleTurns);
+        } else {
+            turnAsOracle();
+        }
     }
 
     public void setGameObject(GameObject gameObject) {
@@ -53,14 +57,6 @@ public class RepresentationComponent implements Component {
         if (gameObject != null) {
             gameObject.sendMessage(Message.PLAYER_TURN);
             System.out.println("Player turn...");
-        }
-    }
-
-    private void sendOraclePredictMessage(Turn oracleTurn) {
-        if (gameObject != null) {
-            gameObject.sendMessage(Message.ORACLE_PREDICT, json.toJson(oracleTurn, Turn.class));
-            System.out.println("Oracle clicked at: " +
-                    '(' + oracleTurn.getY() + ", " + oracleTurn.getY() + ')');
         }
     }
 
@@ -116,6 +112,7 @@ public class RepresentationComponent implements Component {
             System.out.println("Oracle has no turns!");
             possibleTurns = getPossibleTurns(GameConfig.PLAYER_DISK_TYPE);
             if (possibleTurns.size() == 0) {
+                forceSendPossibleTurnsMessage();
                 System.out.println("Player has no turns!");
                 System.out.println("Game is over!");
                 return;
@@ -129,6 +126,7 @@ public class RepresentationComponent implements Component {
         }
         if (possibleTurns.size() == 0) {
             System.out.println("Player has no turns!");
+            forceSendPossibleTurnsMessage();
             turnAsOracle();
             return;
         }
