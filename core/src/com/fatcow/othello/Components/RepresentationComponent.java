@@ -70,10 +70,38 @@ public class RepresentationComponent implements Component {
         for (int i = 0; i < data.length; ++i) {
             for (int j = 0; j < data.length; ++j) {
                 if (data[i][j] == diskType) {
-                    possibleTurns.putAll(BoardUtils.getPossibleRowTurns(currentBoard, diskType, i, j));
-                    possibleTurns.putAll(BoardUtils.getPossibleColumnTurns(currentBoard, diskType, i, j));
-                    possibleTurns.putAll(BoardUtils.getPossibleDiagTurns(currentBoard, diskType, i, j));
-                    possibleTurns.putAll(BoardUtils.getPossibleAntidiagTurns(currentBoard, diskType, i, j));
+                    Hashtable<Vector2, LinkedList<Vector2>> rowTurns = BoardUtils.getPossibleRowTurns(currentBoard, diskType, i, j);
+                    Hashtable<Vector2, LinkedList<Vector2>> colTurns = BoardUtils.getPossibleColumnTurns(currentBoard, diskType, i, j);
+                    Hashtable<Vector2, LinkedList<Vector2>> diagTurns = BoardUtils.getPossibleDiagTurns(currentBoard, diskType, i, j);
+                    Hashtable<Vector2, LinkedList<Vector2>> antiDiagTurns = BoardUtils.getPossibleAntidiagTurns(currentBoard, diskType, i, j);
+                    for (Vector2 rowTurn: rowTurns.keySet()) {
+                        if (possibleTurns.containsKey(rowTurn)) {
+                            possibleTurns.get(rowTurn).addAll(rowTurns.get(rowTurn));
+                        } else {
+                            possibleTurns.put(rowTurn, rowTurns.get(rowTurn));
+                        }
+                    }
+                    for (Vector2 colTurn: colTurns.keySet()) {
+                        if (possibleTurns.containsKey(colTurn)) {
+                            possibleTurns.get(colTurn).addAll(colTurns.get(colTurn));
+                        } else {
+                            possibleTurns.put(colTurn, colTurns.get(colTurn));
+                        }
+                    }
+                    for (Vector2 diagTurn: diagTurns.keySet()) {
+                        if (possibleTurns.containsKey(diagTurn)) {
+                            possibleTurns.get(diagTurn).addAll(diagTurns.get(diagTurn));
+                        } else {
+                            possibleTurns.put(diagTurn, diagTurns.get(diagTurn));
+                        }
+                    }
+                    for (Vector2 antiDiagTurn: antiDiagTurns.keySet()) {
+                        if (possibleTurns.containsKey(antiDiagTurn)) {
+                            possibleTurns.get(antiDiagTurn).addAll(antiDiagTurns.get(antiDiagTurn));
+                        } else {
+                            possibleTurns.put(antiDiagTurn, antiDiagTurns.get(antiDiagTurn));
+                        }
+                    }
                 }
             }
         }
@@ -84,12 +112,26 @@ public class RepresentationComponent implements Component {
         sendComputerTurnMessage();
         Hashtable<Vector2, LinkedList<Vector2>> oraclePossibleTurns =
                 getPossibleTurns(DiskType.getOpposite(GameConfig.PLAYER_DISK_TYPE));
-        BoardOracle oracle = new BoardOracle(currentBoard, oraclePossibleTurns);
-        Turn oracleTurn = oracle.predict();
-
-        currentBoard = new Board(currentBoard, oracleTurn, oraclePossibleTurns.get(
-                new Vector2(oracleTurn.getX(), oracleTurn.getY())));
-        possibleTurns = getPossibleTurns(GameConfig.PLAYER_DISK_TYPE);
+        if (oraclePossibleTurns.size() == 0) {
+            System.out.println("Oracle has no turns!");
+            possibleTurns = getPossibleTurns(GameConfig.PLAYER_DISK_TYPE);
+            if (possibleTurns.size() == 0) {
+                System.out.println("Player has no turns!");
+                System.out.println("Game is over!");
+                return;
+            }
+        } else {
+            BoardOracle oracle = new BoardOracle(currentBoard, oraclePossibleTurns);
+            Turn oracleTurn = oracle.predict();
+            currentBoard = new Board(currentBoard, oracleTurn, oraclePossibleTurns.get(
+                    new Vector2(oracleTurn.getX(), oracleTurn.getY())));
+            possibleTurns = getPossibleTurns(GameConfig.PLAYER_DISK_TYPE);
+        }
+        if (possibleTurns.size() == 0) {
+            System.out.println("Player has no turns!");
+            turnAsOracle();
+            return;
+        }
         System.out.println("Possible player turns: " + possibleTurns);
         forceSendPossibleTurnsMessage();
         forceSendDataChangedMessage();

@@ -81,8 +81,12 @@ public final class BoardUtils {
         if (    currentCol != 0 &&
                 currentRow != 0 &&
                 data[currentRow - 1][currentCol - 1] == oppositeType) {
-            while (--currentCol != 0 && --currentRow != 0 && data[currentRow][currentCol] == oppositeType) {
+            --currentCol;
+            --currentRow;
+            while (currentCol != 0 && currentRow != 0 && data[currentRow][currentCol] == oppositeType) {
                 reverses.add(new Vector2(currentRow, currentCol));
+                --currentCol;
+                --currentRow;
             }
         }
         if (data[currentRow][currentCol] == null) {
@@ -95,10 +99,14 @@ public final class BoardUtils {
         if (    currentCol != data.length - 1 &&
                 currentRow != data.length - 1 &&
                 data[currentRow + 1][currentCol + 1] == oppositeType) {
-            while ( ++currentCol != data.length - 1 &&
-                    ++currentRow != data.length - 1 &&
+            ++currentCol;
+            ++currentRow;
+            while ( currentCol != data.length - 1 &&
+                    currentRow != data.length - 1 &&
                     data[currentRow][currentCol] == oppositeType) {
                 reverses.add(new Vector2(currentRow, currentCol));
+                ++currentCol;
+                ++currentRow;
             }
         }
         if (data[currentRow][currentCol] == null) {
@@ -119,10 +127,14 @@ public final class BoardUtils {
         if (    currentCol != 0 &&
                 currentRow != data.length - 1 &&
                 data[currentRow + 1][currentCol - 1] == oppositeType) {
-            while ( --currentCol != 0 &&
-                    ++currentRow != data.length - 1 &&
+            --currentCol;
+            ++currentRow;
+            while ( currentCol != 0 &&
+                    currentRow != data.length - 1 &&
                     data[currentRow][currentCol] == oppositeType) {
                 reverses.add(new Vector2(currentRow, currentCol));
+                --currentCol;
+                ++currentRow;
             }
         }
         if (data[currentRow][currentCol] == null) {
@@ -135,10 +147,14 @@ public final class BoardUtils {
         if (    currentCol != data.length - 1 &&
                 currentRow != 0 &&
                 data[currentRow - 1][currentCol + 1] == oppositeType) {
-            while ( ++currentCol != data.length - 1 &&
-                    --currentRow != 0 &&
+            ++currentCol;
+            --currentRow;
+            while ( currentCol != data.length - 1 &&
+                    currentRow != 0 &&
                     data[currentRow][currentCol] == oppositeType) {
                 reverses.add(new Vector2(currentRow, currentCol));
+                ++currentCol;
+                --currentRow;
             }
         }
         if (data[currentRow][currentCol] == null) {

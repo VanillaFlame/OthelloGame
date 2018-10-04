@@ -8,6 +8,8 @@ public interface Component {
         BOARD_DATA_CHANGED,
         PLAYER_INPUT,
         ORACLE_PREDICT,
+        PLAYER_SKIP_TURN,
+        ORACLE_SKIL_TURN,
         DRAG_OVER_POSSIBLE_TURN_BEGIN,
         DRAG_OVER_POSSIBLE_TURN_END,
         POSSIBLE_TURNS,
