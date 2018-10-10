@@ -19,7 +19,7 @@ public class RepresentationComponent implements Component {
     public RepresentationComponent(Board startBoard) {
         currentBoard = startBoard;
         if (GameConfig.PLAYER_DISK_TYPE == DiskType.BLACK) {
-            possibleTurns = getPossibleTurns(GameConfig.PLAYER_DISK_TYPE);
+            possibleTurns = getPossibleTurns(GameConfig.PLAYER_DISK_TYPE, currentBoard);
             System.out.println("Possible player turns: " + possibleTurns);
         } else {
             turnAsOracle();
@@ -60,16 +60,16 @@ public class RepresentationComponent implements Component {
         }
     }
 
-    private Hashtable<Vector2, LinkedList<Vector2>> getPossibleTurns(DiskType diskType) {
+    public static Hashtable<Vector2, LinkedList<Vector2>> getPossibleTurns(DiskType diskType, Board board) {
         Hashtable<Vector2, LinkedList<Vector2>> possibleTurns = new Hashtable<Vector2, LinkedList<Vector2>>();
-        DiskType[][] data = currentBoard.getData();
+        DiskType[][] data = board.getData();
         for (int i = 0; i < data.length; ++i) {
             for (int j = 0; j < data.length; ++j) {
                 if (data[i][j] == diskType) {
-                    Hashtable<Vector2, LinkedList<Vector2>> rowTurns = BoardUtils.getPossibleRowTurns(currentBoard, diskType, i, j);
-                    Hashtable<Vector2, LinkedList<Vector2>> colTurns = BoardUtils.getPossibleColumnTurns(currentBoard, diskType, i, j);
-                    Hashtable<Vector2, LinkedList<Vector2>> diagTurns = BoardUtils.getPossibleDiagTurns(currentBoard, diskType, i, j);
-                    Hashtable<Vector2, LinkedList<Vector2>> antiDiagTurns = BoardUtils.getPossibleAntidiagTurns(currentBoard, diskType, i, j);
+                    Hashtable<Vector2, LinkedList<Vector2>> rowTurns = BoardUtils.getPossibleRowTurns(board, diskType, i, j);
+                    Hashtable<Vector2, LinkedList<Vector2>> colTurns = BoardUtils.getPossibleColumnTurns(board, diskType, i, j);
+                    Hashtable<Vector2, LinkedList<Vector2>> diagTurns = BoardUtils.getPossibleDiagTurns(board, diskType, i, j);
+                    Hashtable<Vector2, LinkedList<Vector2>> antiDiagTurns = BoardUtils.getPossibleAntidiagTurns(board, diskType, i, j);
                     for (Vector2 rowTurn: rowTurns.keySet()) {
                         if (possibleTurns.containsKey(rowTurn)) {
                             possibleTurns.get(rowTurn).addAll(rowTurns.get(rowTurn));
@@ -107,10 +107,10 @@ public class RepresentationComponent implements Component {
     private void turnAsOracle() {
         sendComputerTurnMessage();
         Hashtable<Vector2, LinkedList<Vector2>> oraclePossibleTurns =
-                getPossibleTurns(DiskType.getOpposite(GameConfig.PLAYER_DISK_TYPE));
+                RepresentationComponent.getPossibleTurns(DiskType.getOpposite(GameConfig.PLAYER_DISK_TYPE), currentBoard);
         if (oraclePossibleTurns.size() == 0) {
             System.out.println("Oracle has no turns!");
-            possibleTurns = getPossibleTurns(GameConfig.PLAYER_DISK_TYPE);
+            possibleTurns = RepresentationComponent.getPossibleTurns(GameConfig.PLAYER_DISK_TYPE, currentBoard);
             if (possibleTurns.size() == 0) {
                 forceSendPossibleTurnsMessage();
                 System.out.println("Player has no turns!");
@@ -122,7 +122,7 @@ public class RepresentationComponent implements Component {
             Turn oracleTurn = oracle.predict();
             currentBoard = new Board(currentBoard, oracleTurn, oraclePossibleTurns.get(
                     new Vector2(oracleTurn.getX(), oracleTurn.getY())));
-            possibleTurns = getPossibleTurns(GameConfig.PLAYER_DISK_TYPE);
+            possibleTurns = RepresentationComponent.getPossibleTurns(GameConfig.PLAYER_DISK_TYPE, currentBoard);
         }
         if (possibleTurns.size() == 0) {
             System.out.println("Player has no turns!");
@@ -149,7 +149,7 @@ public class RepresentationComponent implements Component {
                 lastPlayerTurn = json.fromJson(Turn.class, string[1]);
                 currentBoard = new Board(currentBoard, lastPlayerTurn, possibleTurns.get(
                         new Vector2(lastPlayerTurn.getX(), lastPlayerTurn.getY())));
-                possibleTurns = getPossibleTurns(GameConfig.PLAYER_DISK_TYPE);
+                possibleTurns = getPossibleTurns(GameConfig.PLAYER_DISK_TYPE, currentBoard);
                 System.out.println("Possible player turns: " + possibleTurns);
                 forceSendPossibleTurnsMessage();
                 forceSendDataChangedMessage();

@@ -1,6 +1,7 @@
 package com.fatcow.othello;
 
 import com.badlogic.gdx.math.Vector2;
+import com.fatcow.othello.Components.RepresentationComponent;
 
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -16,15 +17,16 @@ public class BoardOracle {
     }
 
     public Turn predict() {
-        int maxReverse = -1;
-        Vector2 bestPosition = new Vector2();
-        for (Vector2 turn: possibleTurns.keySet()) {
-            if (possibleTurns.get(turn).size() > maxReverse) {
-                maxReverse = possibleTurns.get(turn).size();
-                bestPosition = turn;
-            }
-        }
-        return new Turn((int)bestPosition.x, (int)bestPosition.y, DiskType.getOpposite(GameConfig.PLAYER_DISK_TYPE));
+//        int maxReverse = -1;
+//        Vector2 bestPosition = new Vector2();
+//        for (Vector2 turn: possibleTurns.keySet()) {
+//            if (possibleTurns.get(turn).size() > maxReverse) {
+//                maxReverse = possibleTurns.get(turn).size();
+//                bestPosition = turn;
+//            }
+//        }
+//        return new Turn((int)bestPosition.x, (int)bestPosition.y, DiskType.getOpposite(GameConfig.PLAYER_DISK_TYPE));
+        return miniMax(GameConfig.PLAYER_DISK_TYPE, PlayerType.MAX);
     }
 
     private Turn miniMax(DiskType disk, PlayerType player){
@@ -45,14 +47,13 @@ public class BoardOracle {
         if (depth == 0){
             return simpleHeuristic(board, disk);
         }
-        // TODO: find possible turns for board, then
-        // possibleTurns =
-        int bestValue = 0;
-        for (Vector2 turn: possibleTurns.keySet()){
-            int childValue = miniMax(board, DiskType.getOpposite(disk), PlayerType.getOpposite(player), depth - 1);
+        int bestValue = (player == PlayerType.MAX)? Integer.MIN_VALUE: Integer.MAX_VALUE;
+
+        Hashtable<Vector2, LinkedList<Vector2>> turns = RepresentationComponent.getPossibleTurns(disk, board);
+        for (Vector2 turn: turns.keySet()){
+            int childValue = miniMax(new Board(board, new Turn((int)turn.x, (int)turn.y, disk)),
+                    DiskType.getOpposite(disk), PlayerType.getOpposite(player), depth - 1);
             if (player == PlayerType.MAX) {
-                // TODO: create new board
-                //Board newBoard = board
                 if (childValue > bestValue) {
                     bestValue = childValue;
                 }
@@ -65,6 +66,10 @@ public class BoardOracle {
 
         return bestValue;
     }
+
+//    private Turn alphaBeta(DiskType disk, PlayerType player){
+//
+//    }
 
     private int simpleHeuristic(Board board, DiskType playerDisk){
         DiskType[][] boardData = board.getData();
