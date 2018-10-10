@@ -2,8 +2,8 @@ package com.fatcow.othello;
 
 import com.badlogic.gdx.math.Vector2;
 import com.fatcow.othello.Components.RepresentationComponent;
-import com.sun.org.apache.xml.internal.security.algorithms.implementations.IntegrityHmac;
-import com.sun.xml.internal.messaging.saaj.packaging.mime.internet.InternetHeaders;
+//import com.sun.org.apache.xml.internal.security.algorithms.implementations.IntegrityHmac;
+//import com.sun.xml.internal.messaging.saaj.packaging.mime.internet.InternetHeaders;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -30,29 +30,40 @@ public class BoardOracle {
 //            }
 //        }
 //        return new Turn((int)bestPosition.x, (int)bestPosition.y, DiskType.getOpposite(GameConfig.PLAYER_DISK_TYPE));
-        return miniMax(GameConfig.PLAYER_DISK_TYPE, PlayerType.MAX);
+        return miniMax(DiskType.getOpposite(GameConfig.PLAYER_DISK_TYPE), PlayerType.MIN);
     }
 
     private Turn miniMax(DiskType disk, PlayerType player){
         Vector2 bestPosition = new Vector2();
-        int bestHeurValue = 0;
-        int MAX_DEPTH = 2;
-        // ArrayList<Integer> turnsValues = new ArrayList<Integer>();
-        for (Vector2 turn: possibleTurns.keySet()) {
-            int childValue = miniMax(board, DiskType.getOpposite(disk), PlayerType.getOpposite(player), MAX_DEPTH);
-            if (childValue > bestHeurValue) {
+        int bestHeurValue = Integer.MAX_VALUE;
+        int MAX_DEPTH = 4;
+        System.out.printf("player is %s \n", player.toString());
+        System.out.printf("diskType is %s \n", disk.toString());
+
+        Hashtable<Vector2, LinkedList<Vector2>> turns = RepresentationComponent.getPossibleTurns(disk, board);
+        for (Vector2 turn: turns.keySet()) {
+            Board newBoard = new Board(board, new Turn((int)turn.x, (int)turn.y, disk), turns.get(turn));
+            int childValue = miniMax(newBoard, DiskType.getOpposite(disk), PlayerType.getOpposite(player), MAX_DEPTH-1);
+            if (childValue < bestHeurValue) {
                 bestHeurValue = childValue;
                 bestPosition = turn;
             }
         }
 
-        return new Turn((int)bestPosition.x, (int)bestPosition.y, DiskType.getOpposite(disk));
+        System.out.printf("we choose turn %d %d \n", (int)bestPosition.x, (int)bestPosition.y);
+        return new Turn((int)bestPosition.x, (int)bestPosition.y, disk);
     }
 
     private int miniMax(Board board, DiskType disk, PlayerType player, int depth){
         if (depth == 0){
-            return simpleHeuristic(board, disk);
+            //board.parentPrint();
+            //board.print();
+            int heurValue = simpleHeuristic(board);
+            //System.out.printf("heuristic value = %d\n", heurValue);
+            return heurValue;
         }
+        System.out.printf("player is %s \n", player.toString());
+        System.out.printf("diskType is %s \n", disk.toString());
         int bestValue = (player == PlayerType.MAX)? Integer.MIN_VALUE: Integer.MAX_VALUE;
 
         Hashtable<Vector2, LinkedList<Vector2>> turns = RepresentationComponent.getPossibleTurns(disk, board);
@@ -60,9 +71,7 @@ public class BoardOracle {
             return bestValue;
         }
         for (Vector2 turn: turns.keySet()){
-            Board newBoard = new Board(board, new Turn((int)turn.x, (int)turn.y, disk));
-            //System.out.println(newBoard.getData());
-            newBoard.print();
+            Board newBoard = new Board(board, new Turn((int)turn.x, (int)turn.y, disk), turns.get(turn));
             int childValue = miniMax(newBoard,
                     DiskType.getOpposite(disk), PlayerType.getOpposite(player), depth - 1);
             if (player == PlayerType.MAX) {
@@ -75,6 +84,7 @@ public class BoardOracle {
                 }
             }
         }
+        System.out.printf("we choose bestBalue = %d\n", bestValue);
 
         return bestValue;
     }
@@ -92,8 +102,9 @@ public class BoardOracle {
         return 10;
     }
 
-    private int simpleHeuristic(Board board, DiskType playerDisk){
+    private int simpleHeuristic(Board board){
         DiskType[][] boardData = board.getData();
+        DiskType playerDisk = GameConfig.PLAYER_DISK_TYPE;
         int heurValue = 1000;
 
         for (DiskType[] row: boardData){

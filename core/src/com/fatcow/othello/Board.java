@@ -35,9 +35,15 @@ public class Board {
         return data;
     }
 
+    void parentPrint(){
+        this.prevState.print();
+    }
+
     void print(){
-        for (DiskType[] disks: data){
-            for (DiskType disk: disks){
+        for (int i = 0; i < GameConfig.BOARD_SIZE; ++i)
+        {
+            for (int j = 0; j < GameConfig.BOARD_SIZE; ++j){
+                DiskType disk = data[j][i];
                 if (disk == null) {
                     System.out.print("- ");
                 }else if (disk == DiskType.BLACK){
