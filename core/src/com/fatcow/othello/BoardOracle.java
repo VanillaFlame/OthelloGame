@@ -37,8 +37,6 @@ public class BoardOracle {
         Vector2 bestPosition = new Vector2();
         int bestHeurValue = Integer.MAX_VALUE;
         int MAX_DEPTH = 4;
-        System.out.printf("player is %s \n", player.toString());
-        System.out.printf("diskType is %s \n", disk.toString());
 
         Hashtable<Vector2, LinkedList<Vector2>> turns = RepresentationComponent.getPossibleTurns(disk, board);
         for (Vector2 turn: turns.keySet()) {
@@ -50,20 +48,14 @@ public class BoardOracle {
             }
         }
 
-        System.out.printf("we choose turn %d %d \n", (int)bestPosition.x, (int)bestPosition.y);
         return new Turn((int)bestPosition.x, (int)bestPosition.y, disk);
     }
 
     private int miniMax(Board board, DiskType disk, PlayerType player, int depth){
         if (depth == 0){
-            //board.parentPrint();
-            //board.print();
             int heurValue = simpleHeuristic(board);
-            //System.out.printf("heuristic value = %d\n", heurValue);
             return heurValue;
         }
-        System.out.printf("player is %s \n", player.toString());
-        System.out.printf("diskType is %s \n", disk.toString());
         int bestValue = (player == PlayerType.MAX)? Integer.MIN_VALUE: Integer.MAX_VALUE;
 
         Hashtable<Vector2, LinkedList<Vector2>> turns = RepresentationComponent.getPossibleTurns(disk, board);
@@ -84,7 +76,7 @@ public class BoardOracle {
                 }
             }
         }
-        System.out.printf("we choose bestBalue = %d\n", bestValue);
+        //System.out.printf("we choose bestBalue = %d\n", bestValue);
 
         return bestValue;
     }
