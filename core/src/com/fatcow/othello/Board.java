@@ -35,6 +35,21 @@ public class Board {
         return data;
     }
 
+    void print(){
+        for (DiskType[] disks: data){
+            for (DiskType disk: disks){
+                if (disk == null) {
+                    System.out.print("- ");
+                }else if (disk == DiskType.BLACK){
+                    System.out.print("X ");
+                }else{
+                    System.out.print("0 ");
+                }
+            }
+            System.out.println();
+        }
+    }
+
     private void copyData() {
         for (int i = 0; i < prevState.getData().length; ++i) {
             data[i] = Arrays.copyOf(prevState.getData()[i], prevState.getData().length);

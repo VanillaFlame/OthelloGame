@@ -2,9 +2,13 @@ package com.fatcow.othello;
 
 import com.badlogic.gdx.math.Vector2;
 import com.fatcow.othello.Components.RepresentationComponent;
+import com.sun.org.apache.xml.internal.security.algorithms.implementations.IntegrityHmac;
+import com.sun.xml.internal.messaging.saaj.packaging.mime.internet.InternetHeaders;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.List;
 
 public class BoardOracle {
 
@@ -32,10 +36,12 @@ public class BoardOracle {
     private Turn miniMax(DiskType disk, PlayerType player){
         Vector2 bestPosition = new Vector2();
         int bestHeurValue = 0;
-        int MAX_DEPTH = 5;
+        int MAX_DEPTH = 2;
+        // ArrayList<Integer> turnsValues = new ArrayList<Integer>();
         for (Vector2 turn: possibleTurns.keySet()) {
-            if (miniMax(board, DiskType.getOpposite(disk), PlayerType.getOpposite(player), MAX_DEPTH) > bestHeurValue) {
-                bestHeurValue = possibleTurns.get(turn).size();
+            int childValue = miniMax(board, DiskType.getOpposite(disk), PlayerType.getOpposite(player), MAX_DEPTH);
+            if (childValue > bestHeurValue) {
+                bestHeurValue = childValue;
                 bestPosition = turn;
             }
         }
@@ -50,8 +56,14 @@ public class BoardOracle {
         int bestValue = (player == PlayerType.MAX)? Integer.MIN_VALUE: Integer.MAX_VALUE;
 
         Hashtable<Vector2, LinkedList<Vector2>> turns = RepresentationComponent.getPossibleTurns(disk, board);
+        if (turns.size() < 1){
+            return bestValue;
+        }
         for (Vector2 turn: turns.keySet()){
-            int childValue = miniMax(new Board(board, new Turn((int)turn.x, (int)turn.y, disk)),
+            Board newBoard = new Board(board, new Turn((int)turn.x, (int)turn.y, disk));
+            //System.out.println(newBoard.getData());
+            newBoard.print();
+            int childValue = miniMax(newBoard,
                     DiskType.getOpposite(disk), PlayerType.getOpposite(player), depth - 1);
             if (player == PlayerType.MAX) {
                 if (childValue > bestValue) {
@@ -67,9 +79,18 @@ public class BoardOracle {
         return bestValue;
     }
 
-//    private Turn alphaBeta(DiskType disk, PlayerType player){
-//
-//    }
+    private Turn alphaBeta(DiskType disk, PlayerType player){
+        int alpha = Integer.MAX_VALUE;
+        int beta = Integer.MIN_VALUE;
+
+        Vector2 bestPosition = new Vector2();
+
+        return new Turn((int)bestPosition.x, (int)bestPosition.y, DiskType.getOpposite(disk));
+    }
+
+    private int alphaBeta(Board board, DiskType disk, PlayerType player, int depth) {
+        return 10;
+    }
 
     private int simpleHeuristic(Board board, DiskType playerDisk){
         DiskType[][] boardData = board.getData();
@@ -77,15 +98,33 @@ public class BoardOracle {
 
         for (DiskType[] row: boardData){
             for (DiskType disk: row){
-                if (disk == playerDisk){
-                    heurValue++;
-                }
-                else{
-                    heurValue--;
+                if (disk != null) {
+                    if (disk == playerDisk) {
+                        heurValue++;
+                    } else {
+                        heurValue--;
+                    }
                 }
             }
         }
 
+        List<Vector2> cornerCells = new ArrayList<Vector2>();
+        cornerCells.add(new Vector2(0, 0));
+        cornerCells.add(new Vector2(0, GameConfig.BOARD_SIZE-1));
+        cornerCells.add(new Vector2(GameConfig.BOARD_SIZE-1, 0));
+        cornerCells.add(new Vector2(GameConfig.BOARD_SIZE-1, GameConfig.BOARD_SIZE-1));
+        for (Vector2 corner: cornerCells){
+            DiskType cornerDisk = boardData[(int)corner.x][(int)corner.y];
+            if (cornerDisk == null)
+                continue;
+            if (cornerDisk == playerDisk){
+                heurValue += 15;
+            }else
+            {
+                heurValue-= 15;
+            }
+        }
+        // System.out.printf("for player %s value = %d\n", playerDisk.toString(), heurValue);
         return heurValue;
     }
 
