@@ -7,4 +7,5 @@ public final class GameConfig {
     public static final float WORLD_HEIGHT = Gdx.graphics.getHeight();
     public static final int BOARD_SIZE = 8;
     public static final DiskType PLAYER_DISK_TYPE = DiskType.BLACK;
+    public static final int MAX_DEPTH = 6;
 }

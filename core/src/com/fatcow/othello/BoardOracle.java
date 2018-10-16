@@ -30,18 +30,18 @@ public class BoardOracle {
 //            }
 //        }
 //        return new Turn((int)bestPosition.x, (int)bestPosition.y, DiskType.getOpposite(GameConfig.PLAYER_DISK_TYPE));
-        return miniMax(DiskType.getOpposite(GameConfig.PLAYER_DISK_TYPE), PlayerType.MIN);
+        return miniMax(DiskType.getOpposite(GameConfig.PLAYER_DISK_TYPE), PlayerType.MIN, GameConfig.MAX_DEPTH);
     }
 
-    private Turn miniMax(DiskType disk, PlayerType player){
+    private Turn miniMax(DiskType disk, PlayerType player, int maxDepth) {
         Vector2 bestPosition = new Vector2();
         int bestHeurValue = Integer.MAX_VALUE;
-        int MAX_DEPTH = 4;
 
         Hashtable<Vector2, LinkedList<Vector2>> turns = RepresentationComponent.getPossibleTurns(disk, board);
         for (Vector2 turn: turns.keySet()) {
             Board newBoard = new Board(board, new Turn((int)turn.x, (int)turn.y, disk), turns.get(turn));
-            int childValue = miniMax(newBoard, DiskType.getOpposite(disk), PlayerType.getOpposite(player), MAX_DEPTH-1);
+            int childValue = miniMax(newBoard, DiskType.getOpposite(disk), PlayerType.getOpposite(player), maxDepth-1,
+                    Integer.MIN_VALUE, Integer.MAX_VALUE);
             if (childValue < bestHeurValue) {
                 bestHeurValue = childValue;
                 bestPosition = turn;
@@ -51,30 +51,36 @@ public class BoardOracle {
         return new Turn((int)bestPosition.x, (int)bestPosition.y, disk);
     }
 
-    private int miniMax(Board board, DiskType disk, PlayerType player, int depth){
-        if (depth == 0){
+    private int miniMax(Board board, DiskType disk, PlayerType player, int depth, int alpha, int beta){
+        if (depth == 0) {
             int heurValue = simpleHeuristic(board);
             return heurValue;
         }
         int bestValue = (player == PlayerType.MAX)? Integer.MIN_VALUE: Integer.MAX_VALUE;
 
         Hashtable<Vector2, LinkedList<Vector2>> turns = RepresentationComponent.getPossibleTurns(disk, board);
-        if (turns.size() < 1){
+        if (turns.size() < 1) {
             return bestValue;
         }
-        for (Vector2 turn: turns.keySet()){
+        for (Vector2 turn: turns.keySet()) {
             Board newBoard = new Board(board, new Turn((int)turn.x, (int)turn.y, disk), turns.get(turn));
             int childValue = miniMax(newBoard,
-                    DiskType.getOpposite(disk), PlayerType.getOpposite(player), depth - 1);
+                    DiskType.getOpposite(disk), PlayerType.getOpposite(player), depth - 1, alpha, beta);
             if (player == PlayerType.MAX) {
                 if (childValue > bestValue) {
                     bestValue = childValue;
+
                 }
-            }else{
+                alpha = Math.max(alpha, bestValue);
+            } else {
                 if (childValue < bestValue) {
                     bestValue = childValue;
+
                 }
+                beta = Math.min(beta, bestValue);
             }
+            if (beta < alpha)
+               break;
         }
         //System.out.printf("we choose bestBalue = %d\n", bestValue);
 
